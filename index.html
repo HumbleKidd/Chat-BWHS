@@ -5,533 +5,159 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Chat BWHS Films</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,700&family=Outfit:wght@360;480;600;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,650&family=Outfit:wght@450;650;750&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 <style>
-  :root {
-    --ink: #1c1430;
-    --muted: #6d6284;
-    --line: rgba(88, 48, 140, .12);
-    --cream: #fff7ef;
-    --paper: #ffffff;
-    --blush: #ff7a59;
-    --mango: #ffb703;
-    --lime: #7ae07a;
-    --sky: #5ec8ff;
-    --violet: #7c5cff;
-    --shadow: 0 18px 50px rgba(92, 48, 140, .12);
-    --radius: 22px;
-  }
+  :root { --ink:#1c1430; --muted:#6d6284; }
   * { box-sizing: border-box; }
-  html, body { height: 100%; }
   body {
-    margin: 0;
-    color: var(--ink);
-    font-family: Outfit, system-ui, sans-serif;
-    background:
-      radial-gradient(900px 500px at -10% -10%, #ffe1c4 0%, transparent 55%),
-      radial-gradient(800px 500px at 110% 0%, #d9f4ff 0%, transparent 50%),
-      radial-gradient(700px 500px at 80% 110%, #efe4ff 0%, transparent 50%),
-      linear-gradient(180deg, #fffaf4, #f4f7ff);
-    min-height: 100%;
+    margin: 0; color: var(--ink); font-family: Outfit, system-ui, sans-serif;
+    background: radial-gradient(800px 400px at 0 0, #ffe1c4, transparent 50%), linear-gradient(180deg, #fffaf4, #f4f7ff);
+    min-height: 100dvh;
   }
-  button, input, textarea { font-family: inherit; }
-  button { cursor: pointer; }
-  .app {
-    height: 100dvh;
-    display: grid;
-    grid-template-columns: 280px minmax(0, 1fr) 260px;
-    gap: 14px;
-    padding: 14px;
+  .app { height: 100dvh; display: grid; grid-template-columns: 260px 1fr; gap: 12px; padding: 12px; }
+  .panel { background: #fff; border-radius: 22px; box-shadow: 0 18px 50px rgba(92,48,140,.12); min-height: 0; }
+  .side { padding: 16px; }
+  h1 { font-family: Fraunces, serif; margin: 0; font-size: 26px; }
+  .pill { display: inline-flex; gap: 6px; align-items: center; margin-top: 8px; background: #fff4e8; color: #b35a12; border-radius: 999px; padding: 4px 10px; font-size: 12px; font-weight: 750; }
+  .pill.on { background: #edfff1; color: #137a32; }
+  .room { width: 100%; text-align: left; border: 0; background: #fff7f2; border-radius: 12px; padding: 10px; margin-top: 8px; font-weight: 750; }
+  .room.active { background: #efe7ff; }
+  .stage { display: flex; flex-direction: column; }
+  .top { padding: 14px 16px; border-bottom: 1px solid #f0e4dc; }
+  .feed { flex: 1; overflow: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { background: #fff7f2; border-radius: 16px; padding: 10px 12px; max-width: 78%; }
+  .msg.mine { align-self: flex-end; background: #efe7ff; }
+  .who { font-weight: 750; font-size: 13px; }
+  .bubble { font-size: 16px; margin-top: 4px; white-space: pre-wrap; word-break: break-word; }
+  .draft { margin: 10px 16px 0; background: #fff; border: 2px dashed #ffb089; border-radius: 14px; padding: 10px 12px; min-height: 44px; font-size: 18px; font-weight: 750; color: #1c1430; }
+  .composer { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 12px; }
+  #box {
+    width: 100%; border: 2px solid #ff7a59; border-radius: 16px; padding: 14px 16px;
+    font: 750 18px Outfit, system-ui, sans-serif; color: #1c1430; background: #fff;
+    caret-color: #ff7a59; -webkit-text-fill-color: #1c1430;
   }
-  .panel {
-    background: rgba(255,255,255,.78);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,.9);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    min-height: 0;
-  }
-  .side, .people { display: flex; flex-direction: column; padding: 16px; }
-  .brand {
-    display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
-  }
-  .mark {
-    width: 46px; height: 46px; border-radius: 16px;
-    background: conic-gradient(from 120deg, #ff7a59, #ffb703, #7ae07a, #5ec8ff, #7c5cff, #ff7a59);
-    display: grid; place-items: center; color: white; font-size: 18px;
-    box-shadow: 0 10px 24px rgba(255,122,89,.35);
-    animation: spinHue 8s linear infinite;
-  }
-  @keyframes spinHue { to { filter: hue-rotate(40deg); } }
-  .brand h1 {
-    font-family: Fraunces, serif; font-size: 22px; margin: 0; letter-spacing: -.03em;
-  }
-  .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
-  .status-pill {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: #edfff1; color: #137a32; border-radius: 999px;
-    padding: 4px 10px; font-size: 12px; font-weight: 600; margin-top: 8px;
-  }
-  .status-pill.off { background: #fff4e8; color: #b35a12; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 4px rgba(34,197,94,.18); }
-  .status-pill.off .dot { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,.18); }
-  .rooms { display: flex; flex-direction: column; gap: 6px; overflow: auto; }
-  .room {
-    border: 0; text-align: left; background: transparent; border-radius: 14px;
-    padding: 10px 12px; display: flex; align-items: center; gap: 10px;
-    color: var(--ink); transition: .2s transform, .2s background;
-  }
-  .room:hover { background: #fff1e8; transform: translateX(3px); }
-  .room.active { background: linear-gradient(90deg, #fff0e8, #f3edff); }
-  .room i { width: 28px; color: var(--blush); }
-  .room small { display: block; color: var(--muted); font-size: 11px; }
-  .add-room, .ghost, .send, .icon-btn {
-    border: 0; border-radius: 14px;
-  }
-  .add-room, .ghost {
-    margin-top: 10px; background: #fff; border: 1px dashed #e4cfc2;
-    padding: 10px 12px; color: var(--muted);
-  }
-  .add-room:hover, .ghost:hover { border-color: var(--blush); color: var(--ink); }
-  .stage { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
-  .top {
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    padding: 14px 16px; border-bottom: 1px solid var(--line);
-  }
-  .top h2 { margin: 0; font-family: Fraunces, serif; font-size: 26px; letter-spacing: -.03em; }
-  .top span { color: var(--muted); font-size: 13px; }
-  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-  .icon-btn {
-    background: #fff; border: 1px solid var(--line); padding: 9px 12px; color: var(--ink);
-    transition: .18s transform, .18s box-shadow;
-  }
-  .icon-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(124,92,255,.15); }
-  .feed {
-    flex: 1; overflow: auto; padding: 18px 18px 8px; display: flex; flex-direction: column; gap: 10px;
-  }
-  .msg {
-    max-width: min(680px, 86%);
-    background: #fff;
-    border-radius: 18px 18px 18px 6px;
-    padding: 10px 12px 8px;
-    box-shadow: 0 8px 20px rgba(80,40,120,.06);
-    animation: pop .28s ease;
-  }
-  .msg.mine {
-    align-self: flex-end;
-    background: linear-gradient(180deg, #fff7f2, #fff);
-    border-radius: 18px 18px 6px 18px;
-    border: 1px solid #ffe1d2;
-  }
-  @keyframes pop { from { opacity: 0; transform: translateY(8px) scale(.98); } }
-  .who { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; }
-  .avatar {
-    width: 26px; height: 26px; border-radius: 9px; display: grid; place-items: center;
-    color: white; font-size: 12px; font-weight: 700;
-  }
-  .bubble { margin: 6px 0 2px; line-height: 1.45; word-break: break-word; }
-  .meta { color: var(--muted); font-size: 11px; display: flex; gap: 8px; align-items: center; }
-  .reacts { display: flex; gap: 4px; margin-top: 6px; }
-  .reacts button {
-    border: 0; background: #fff6ee; border-radius: 999px; padding: 2px 7px; font-size: 12px;
-  }
-  .composer {
-    padding: 12px; display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: end;
-    border-top: 1px solid var(--line);
-  }
-  textarea {
-    resize: none; border: 1px solid #f0dfd4; border-radius: 16px; padding: 12px 14px;
-    min-height: 48px; max-height: 120px; outline: none; background: #fff;
-  }
-  textarea:focus { border-color: #ffb089; box-shadow: 0 0 0 4px rgba(255,122,89,.12); }
-  .send {
-    background: linear-gradient(180deg, #ff8a66, #ff6a45);
-    color: white; padding: 0 16px; height: 48px; font-weight: 700;
-    box-shadow: 0 10px 20px rgba(255,106,69,.28);
-  }
-  .send:hover { transform: translateY(-1px); }
-  .people h3, .side h3 { margin: 14px 0 8px; font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
-  .person { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 14px; }
-  .typing { color: var(--violet); font-size: 13px; min-height: 18px; padding: 0 18px 8px; }
-  .modal {
-    position: fixed; inset: 0; background: rgba(40, 20, 60, .35);
-    display: grid; place-items: center; padding: 16px; z-index: 20;
-  }
-  .card {
-    width: min(560px, 100%); background: #fff; border-radius: 24px; padding: 22px;
-    box-shadow: var(--shadow);
-  }
-  .card h3 { font-family: Fraunces, serif; margin: 0 0 6px; font-size: 28px; }
-  .card p { color: var(--muted); margin-top: 0; }
-  label { display: block; font-size: 12px; font-weight: 700; margin: 10px 0 4px; }
-  input[type="text"], input[type="password"] {
-    width: 100%; border: 1px solid #f0dfd4; border-radius: 12px; padding: 11px 12px; outline: none;
-  }
-  .row { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
-  .primary {
-    border: 0; border-radius: 14px; padding: 12px 14px; color: white; font-weight: 700;
-    background: linear-gradient(90deg, #ff7a59, #7c5cff);
-  }
-  .hidden { display: none !important; }
-  .toast {
-    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-    background: #1c1430; color: white; padding: 10px 14px; border-radius: 999px; font-size: 13px;
-    z-index: 30;
-  }
-  @media (max-width: 980px) {
-    .app { grid-template-columns: 1fr; height: auto; min-height: 100dvh; }
-    .people { display: none; }
-    .side { max-height: none; }
-    .stage { min-height: 72dvh; }
-    .feed { min-height: 48dvh; }
-  }
+  #box::placeholder { color: #b08978; -webkit-text-fill-color: #b08978; font-weight: 500; }
+  button.send { border: 0; border-radius: 16px; padding: 0 18px; background: #ff7a59; color: white; font-weight: 750; }
+  .note { color: var(--muted); font-size: 13px; padding: 0 16px 10px; }
+  @media (max-width: 800px) { .app { grid-template-columns: 1fr; height: auto; } .feed { min-height: 50dvh; } }
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="panel side">
-    <div class="brand">
-      <div class="mark"><i class="fa-solid fa-bolt"></i></div>
-      <div>
-        <h1>BWHS Films</h1>
-        <p>Live rooms for the crew.</p>
-        <div id="conn" class="status-pill off"><span class="dot"></span><span id="connText">Not connected</span></div>
-      </div>
-    </div>
-    <h3>Rooms</h3>
-    <div class="rooms" id="roomList"></div>
-    <button class="add-room" id="newRoom"><i class="fa-solid fa-plus"></i> New room</button>
-    <button class="ghost" id="openSetup"><i class="fa-solid fa-plug"></i> Connect Firebase</button>
+    <h1>BWHS Films</h1>
+    <div id="conn" class="pill">Connecting…</div>
+    <button class="room active" data-room="general"># general</button>
+    <button class="room" data-room="introductions"># introductions</button>
+    <button class="room" data-room="announcements"># announcements</button>
   </aside>
   <main class="panel stage">
-    <div class="top">
-      <div>
-        <h2 id="roomTitle">general</h2>
-        <span id="roomSub">Say something. It lands for everyone in this room.</span>
-      </div>
-      <div class="actions">
-        <button class="icon-btn" id="soundBtn" title="Sound"><i class="fa-solid fa-volume-high"></i></button>
-        <button class="icon-btn" id="shareBtn"><i class="fa-solid fa-link"></i> Share</button>
-        <button class="icon-btn" id="nameBtn"><i class="fa-solid fa-user"></i> <span id="meName">Guest</span></button>
-      </div>
-    </div>
+    <div class="top"><strong id="roomTitle"># general</strong></div>
     <div class="feed" id="feed"></div>
-    <div class="typing" id="typing"></div>
+    <div class="draft" id="draft">Your letters show here as you type.</div>
     <form class="composer" id="composer">
-      <button type="button" class="icon-btn" id="emojiBtn" title="Emoji">😀</button>
-      <textarea id="box" rows="1" placeholder="Message the room… Enter to send" maxlength="800"></textarea>
-      <button class="send" type="submit"><i class="fa-solid fa-paper-plane"></i></button>
+      <input id="box" type="text" placeholder="Type here. You should see the letters in this box and in the bar above." maxlength="800" autocomplete="off" />
+      <button class="send" type="submit">Send</button>
     </form>
+    <div class="note" id="note">Sent messages stay on this screen even if the database rejects them.</div>
   </main>
-  <aside class="panel people">
-    <h3>In this room</h3>
-    <div id="online"></div>
-    <h3>How this stays free</h3>
-    <p style="color:var(--muted);font-size:13px;line-height:1.45;margin-top:0">Firebase Spark plan. No card. Anonymous sign-in. Messages live in your Realtime Database, not on a rented forum.</p>
-  </aside>
 </div>
-
-<div class="modal" id="setup">
-  <div class="card">
-    <h3>Connect the free backend</h3>
-    <p>Create a Firebase project, turn on Anonymous auth and Realtime Database, then paste the web config. Until then, this tab only talks to itself.</p>
-    <label>apiKey</label>
-    <input id="apiKey" type="text" placeholder="Paste the apiKey from Project settings" />
-    <label>authDomain</label>
-    <input id="authDomain" type="text" value="chat-bwhs-films.firebaseapp.com" />
-    <label>databaseURL</label>
-    <input id="databaseURL" type="text" value="https://chat-bwhs-films-default-rtdb.firebaseio.com" />
-    <label>projectId</label>
-    <input id="projectId" type="text" value="chat-bwhs-films" />
-    <div class="row">
-      <button class="primary" id="saveCfg">Save and go live</button>
-      <button class="icon-btn" id="closeSetup">Use local preview</button>
-      <button class="icon-btn" id="copyRules">Copy database rules</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal hidden" id="nameModal">
-  <div class="card">
-    <h3>Your name in the room</h3>
-    <p>Pick something people can reply to. Stored only in this browser.</p>
-    <label>Display name</label>
-    <input id="nameInput" type="text" maxlength="24" />
-    <div class="row">
-      <button class="primary" id="saveName">Save</button>
-      <button class="icon-btn" id="closeName">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
-const RULES = `{
-  "rules": {
-    "rooms": {
-      "$room": {
-        ".read": true,
-        "messages": {
-          ".write": "auth != null && newData.child('text').isString() && newData.child('text').val().length > 0 && newData.child('text').val().length < 801",
-          ".indexOn": ["ts"]
-        }
-      }
-    },
-    "presence": {
-      ".read": true,
-      "$uid": { ".write": "auth != null && auth.uid == $uid" }
-    },
-    "typing": {
-      ".read": true,
-      "$room": { "$uid": { ".write": "auth != null && auth.uid == $uid" } }
-    }
-  }
-}`;
-const COLORS = ["#ff7a59","#7c5cff","#11998e","#f59e0b","#0ea5e9","#db2777","#16a34a"];
-const DEFAULT_ROOMS = [
-  { id: "general", icon: "fa-comments", blurb: "Main floor" },
-  { id: "introductions", icon: "fa-hand", blurb: "Who just walked in" },
-  { id: "announcements", icon: "fa-bullhorn", blurb: "Pinned news" },
-  { id: "off-topic", icon: "fa-fire", blurb: "Anything goes" }
-];
-const state = {
-  room: (location.hash || "#general").slice(1) || "general",
-  name: localStorage.getItem("ll-name") || "Guest" + Math.floor(Math.random()*90+10),
-  color: localStorage.getItem("ll-color") || COLORS[Math.floor(Math.random()*COLORS.length)],
-  uid: localStorage.getItem("ll-uid") || ("local-" + Math.random().toString(36).slice(2, 10)),
-  sound: localStorage.getItem("ll-sound") !== "0",
-  rooms: JSON.parse(localStorage.getItem("ll-rooms") || "null") || DEFAULT_ROOMS,
-  live: false,
-  db: null
-};
-localStorage.setItem("ll-uid", state.uid);
-localStorage.setItem("ll-name", state.name);
-localStorage.setItem("ll-color", state.color);
-
-const feed = document.getElementById("feed");
-const roomList = document.getElementById("roomList");
-const box = document.getElementById("box");
-let unsubMsg = null, unsubPresence = null, unsubTyping = null;
-
-function esc(s) {
-  return String(s).replace(/[&<>"']/g, c => ({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
-}
-function time(ts) {
-  return new Date(ts).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-}
-function toast(text) {
-  const el = document.createElement("div");
-  el.className = "toast";
-  el.textContent = text;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 2200);
-}
-function renderRooms() {
-  roomList.innerHTML = state.rooms.map(r => `
-    <button class="room ${r.id === state.room ? "active" : ""}" data-room="${esc(r.id)}">
-      <i class="fa-solid ${r.icon || "fa-hashtag"}"></i>
-      <span><b># ${esc(r.id)}</b><small>${esc(r.blurb || "Room")}</small></span>
-    </button>`).join("");
-  document.getElementById("roomTitle").textContent = "#" + state.room;
-}
-function paint(messages) {
-  const atBottom = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 80;
-  feed.innerHTML = messages.map(m => `
-    <article class="msg ${m.uid === state.uid ? "mine" : ""}">
-      <div class="who"><span class="avatar" style="background:${esc(m.color || "#7c5cff")}">${esc((m.name||"?").slice(0,1).toUpperCase())}</span>${esc(m.name || "Guest")}</div>
-      <div class="bubble">${esc(m.text || "")}</div>
-      <div class="meta"><span>${time(m.ts || Date.now())}</span></div>
-    </article>`).join("") || `<div class="msg"><div class="bubble">No messages yet. Be the first voice in #${esc(state.room)}.</div></div>`;
-  if (atBottom) feed.scrollTop = feed.scrollHeight;
-}
-function setConn(on, label) {
-  const el = document.getElementById("conn");
-  el.classList.toggle("off", !on);
-  document.getElementById("connText").textContent = label;
-}
-function beep() {
-  if (!state.sound) return;
-  const ctx = new (window.AudioContext || window.webkitAudioContext)();
-  const o = ctx.createOscillator();
-  const g = ctx.createGain();
-  o.frequency.value = 740; o.type = "sine"; g.gain.value = 0.03;
-  o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime + 0.08);
-}
-
-function listenLocal() {
-  if (unsubMsg) unsubMsg();
-  const key = "ll-log-" + state.room;
-  const read = () => paint(JSON.parse(localStorage.getItem(key) || "[]"));
-  read();
-  const onStorage = e => { if (e.key === key) read(); };
-  window.addEventListener("storage", onStorage);
-  unsubMsg = () => window.removeEventListener("storage", onStorage);
-  document.getElementById("online").innerHTML = `<div class="person"><span class="avatar" style="background:${state.color}">${state.name.slice(0,1)}</span> ${esc(state.name)} · you</div>`;
-  setConn(false, "Local preview");
-}
-function sendLocal(text) {
-  const key = "ll-log-" + state.room;
-  const list = JSON.parse(localStorage.getItem(key) || "[]");
-  list.push({ uid: state.uid, name: state.name, color: state.color, text, ts: Date.now() });
-  localStorage.setItem(key, JSON.stringify(list.slice(-200)));
-  paint(list.slice(-200));
-}
-
-async function bootFirebase(cfg) {
-  if (!window.firebase.apps.length) firebase.initializeApp(cfg);
-  state.db = firebase.database();
-  await firebase.auth().signInAnonymously();
-  state.uid = firebase.auth().currentUser.uid;
-  state.live = true;
-  setConn(true, "Live · Firebase");
-  subscribe();
-  presence();
-}
-function subscribe() {
-  if (unsubMsg) unsubMsg();
-  const ref = state.db.ref("rooms/" + state.room + "/messages").limitToLast(80);
-  const handler = snap => {
-    const rows = [];
-    snap.forEach(c => rows.push({ id: c.key, ...c.val() }));
-    paint(rows);
-  };
-  ref.on("value", handler);
-  unsubMsg = () => ref.off("value", handler);
-  const tref = state.db.ref("typing/" + state.room);
-  const th = snap => {
-    const names = [];
-    snap.forEach(c => { if (c.key !== state.uid && c.val() && Date.now() - c.val() < 4000) names.push("someone"); });
-    document.getElementById("typing").textContent = names.length ? "Someone is typing…" : "";
-  };
-  tref.on("value", th);
-  unsubTyping = () => tref.off("value", th);
-}
-function presence() {
-  const ref = state.db.ref("presence/" + state.uid);
-  ref.onDisconnect().remove();
-  ref.set({ name: state.name, color: state.color, room: state.room, ts: Date.now() });
-  const all = state.db.ref("presence");
-  const handler = snap => {
-    const people = [];
-    snap.forEach(c => { const v = c.val(); if (v && v.room === state.room) people.push(v); });
-    document.getElementById("online").innerHTML = people.map(p => `<div class="person"><span class="avatar" style="background:${esc(p.color)}">${esc((p.name||"?").slice(0,1))}</span> ${esc(p.name)}</div>`).join("") || "Nobody else yet.";
-    document.getElementById("roomSub").textContent = people.length + " here now";
-  };
-  all.on("value", handler);
-  unsubPresence = () => all.off("value", handler);
-}
-async function sendLive(text) {
-  await state.db.ref("rooms/" + state.room + "/messages").push({
-    uid: state.uid, name: state.name, color: state.color, text, ts: firebase.database.ServerValue.TIMESTAMP
-  });
-  beep();
-}
-
-function openRoom(id) {
-  state.room = id;
-  history.replaceState(null, "", "#" + id);
-  renderRooms();
-  feed.innerHTML = "";
-  if (state.live) { subscribe(); presence(); }
-  else listenLocal();
-}
-document.getElementById("roomList").addEventListener("click", e => {
-  const btn = e.target.closest("[data-room]");
-  if (btn) openRoom(btn.dataset.room);
-});
-document.getElementById("newRoom").onclick = () => {
-  const name = (prompt("Room name") || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
-  if (!name) return;
-  if (!state.rooms.some(r => r.id === name)) {
-    state.rooms.push({ id: name, icon: "fa-hashtag", blurb: "Custom room" });
-    localStorage.setItem("ll-rooms", JSON.stringify(state.rooms));
-  }
-  openRoom(name);
-};
-document.getElementById("composer").onsubmit = async e => {
-  e.preventDefault();
-  const text = box.value.trim();
-  if (!text) return;
-  box.value = "";
-  if (state.live) await sendLive(text);
-  else sendLocal(text);
-};
-box.addEventListener("keydown", e => {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); document.getElementById("composer").requestSubmit(); }
-});
-let typeTimer;
-box.addEventListener("input", () => {
-  if (!state.live) return;
-  state.db.ref("typing/" + state.room + "/" + state.uid).set(Date.now());
-  clearTimeout(typeTimer);
-  typeTimer = setTimeout(() => state.db.ref("typing/" + state.room + "/" + state.uid).remove(), 1500);
-});
-document.getElementById("emojiBtn").onclick = () => { box.value += " ✨"; box.focus(); };
-document.getElementById("soundBtn").onclick = () => {
-  state.sound = !state.sound;
-  localStorage.setItem("ll-sound", state.sound ? "1" : "0");
-  document.getElementById("soundBtn").innerHTML = state.sound ? '<i class="fa-solid fa-volume-high"></i>' : '<i class="fa-solid fa-volume-xmark"></i>';
-};
-document.getElementById("shareBtn").onclick = async () => {
-  await navigator.clipboard.writeText(location.href);
-  toast("Room link copied");
-};
-document.getElementById("meName").textContent = state.name;
-document.getElementById("nameBtn").onclick = () => {
-  document.getElementById("nameInput").value = state.name;
-  document.getElementById("nameModal").classList.remove("hidden");
-};
-document.getElementById("saveName").onclick = () => {
-  state.name = document.getElementById("nameInput").value.trim().slice(0, 24) || state.name;
-  localStorage.setItem("ll-name", state.name);
-  document.getElementById("meName").textContent = state.name;
-  document.getElementById("nameModal").classList.add("hidden");
-  if (state.live) presence();
-};
-document.getElementById("closeName").onclick = () => document.getElementById("nameModal").classList.add("hidden");
-document.getElementById("openSetup").onclick = () => document.getElementById("setup").classList.remove("hidden");
-document.getElementById("closeSetup").onclick = () => document.getElementById("setup").classList.add("hidden");
-document.getElementById("copyRules").onclick = async () => {
-  await navigator.clipboard.writeText(RULES);
-  toast("Rules copied. Paste them in Realtime Database → Rules");
-};
-document.getElementById("saveCfg").onclick = async () => {
-  const cfg = {
-    apiKey: document.getElementById("apiKey").value.trim(),
-    authDomain: document.getElementById("authDomain").value.trim(),
-    databaseURL: document.getElementById("databaseURL").value.trim(),
-    projectId: document.getElementById("projectId").value.trim()
-  };
-  if (!cfg.apiKey || !cfg.databaseURL || !cfg.projectId) return toast("apiKey, databaseURL and projectId are required");
-  localStorage.setItem("ll-firebase", JSON.stringify(cfg));
-  try {
-    await bootFirebase(cfg);
-    document.getElementById("setup").classList.add("hidden");
-    toast("Live. Share this page.");
-  } catch (err) {
-    toast(err.message || "Firebase refused the config");
-  }
-};
-
-renderRooms();
-const BUILT_IN = {
+const CFG = {
   apiKey: "AIzaSyBrOc4fG4Xo4HIMkVHW9ptcfkr1POZI9VA",
   authDomain: "chat-bwhs-films.firebaseapp.com",
   databaseURL: "https://chat-bwhs-films-default-rtdb.firebaseio.com",
   projectId: "chat-bwhs-films"
 };
-document.getElementById("apiKey").value = BUILT_IN.apiKey;
-document.getElementById("setup").classList.add("hidden");
-bootFirebase(BUILT_IN).catch(() => {
-  setConn(false, "Firebase refused — check Anonymous auth and rules");
-  listenLocal();
-  document.getElementById("setup").classList.remove("hidden");
+const feed = document.getElementById("feed");
+const box = document.getElementById("box");
+const draft = document.getElementById("draft");
+const note = document.getElementById("note");
+const conn = document.getElementById("conn");
+const local = JSON.parse(localStorage.getItem("bwhs-me") || "null") || {
+  name: "Guest" + Math.floor(Math.random() * 90 + 10),
+  color: "#7c5cff"
+};
+localStorage.setItem("bwhs-me", JSON.stringify(local));
+let room = "general";
+let db = null;
+let live = false;
+let seen = new Set();
+
+function add(msg, mine) {
+  if (msg.id && seen.has(msg.id)) return;
+  if (msg.id) seen.add(msg.id);
+  const el = document.createElement("article");
+  el.className = "msg" + (mine ? " mine" : "");
+  const who = document.createElement("div");
+  who.className = "who";
+  who.textContent = msg.name || "Guest";
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = msg.text || "";
+  el.append(who, bubble);
+  feed.appendChild(el);
+  feed.scrollTop = feed.scrollHeight;
+}
+function setConn(on, text) {
+  conn.classList.toggle("on", on);
+  conn.textContent = text;
+}
+box.addEventListener("input", () => {
+  draft.textContent = box.value ? box.value : "Your letters show here as you type.";
 });
-if (state.room) openRoom(state.room);
+document.getElementById("composer").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const text = box.value.trim();
+  if (!text) return;
+  const msg = { name: local.name, text, ts: Date.now() };
+  add(msg, true);
+  box.value = "";
+  draft.textContent = "Sent: " + text;
+  if (!live) {
+    note.textContent = "Showing on this screen only. Firebase is not connected yet.";
+    return;
+  }
+  try {
+    await db.ref("rooms/" + room + "/messages").push({ ...msg, color: local.color });
+    note.textContent = "Sent to the room.";
+  } catch (err) {
+    note.textContent = "On screen, but Firebase blocked it. Publish the database rules, then send again.";
+  }
+});
+document.querySelectorAll("[data-room]").forEach(btn => btn.onclick = () => {
+  room = btn.dataset.room;
+  document.getElementById("roomTitle").textContent = "# " + room;
+  document.querySelectorAll(".room").forEach(b => b.classList.toggle("active", b === btn));
+  feed.innerHTML = "";
+  seen = new Set();
+  listen();
+});
+function listen() {
+  if (!live) return;
+  db.ref("rooms/" + room + "/messages").limitToLast(50).on("child_added", snap => {
+    const v = snap.val() || {};
+    add({ id: snap.key, ...v }, false);
+  });
+}
+async function boot() {
+  try {
+    firebase.initializeApp(CFG);
+    db = firebase.database();
+    await firebase.auth().signInAnonymously();
+    live = true;
+    setConn(true, "Live · Firebase");
+    listen();
+  } catch (err) {
+    setConn(false, "Local only");
+    note.textContent = err.message || "Could not sign in. Turn on Anonymous auth.";
+  }
+}
+boot();
 </script>
 </body>
 </html>
